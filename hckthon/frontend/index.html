@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Sign Up - Attendance System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/frontend/assets/style.css">
+</head>
+<body class="bg-secondary">
+    <div class="container">
+        <div class="row justify-content-center align-items-center vh-100">
+            <div class="col-md-5">
+                <div class="card shadow">
+                    <div class="card-body">
+                    
+                        <div id="loginForm" class="form-container active">
+                            <h3 class="text-center mb-4">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </h3>
+                            <form id="loginFormElement" autocomplete="off">
+                                <div class="mb-3">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" name="email" class="form-control" placeholder="Enter your email" required autocomplete="email">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Password</label>
+                                    <div class="input-group">
+                                        <input type="password" name="password" id="loginPassword" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('loginPassword')">
+                                            <i class="fas fa-eye" id="loginPasswordIcon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100" id="loginBtn">
+                                    <i class="fas fa-sign-in-alt"></i> Login
+                                </button>
+                            </form>
+                            <p class="text-center mt-3">
+                                No account? <a href="#" id="showSignupLink">Sign up here</a>
+                            </p>
+                        </div>
+
+                        <!-- Signup Form -->
+                        <div id="signupForm" class="form-container">
+                            <h3 class="text-center mb-4">
+                                <i class="fas fa-user-plus"></i> Student Registration
+                            </h3>
+                            <form id="signupFormElement" autocomplete="off">
+                                <div class="mb-3">
+                                    <label class="form-label">Student ID</label>
+                                    <input type="text" name="student_id" class="form-control" placeholder="Enter your student ID" required autocomplete="off">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" name="first_name" class="form-control" placeholder="Enter your first name" required autocomplete="given-name">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" name="last_name" class="form-control" placeholder="Enter your last name" required autocomplete="family-name">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" name="email" class="form-control" placeholder="Enter your email" required autocomplete="email">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Password (min. 6 characters)</label>
+                                    <div class="input-group">
+                                        <input type="password" name="password" id="signupPassword" class="form-control" placeholder="Create a password" required autocomplete="new-password" minlength="6">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('signupPassword')">
+                                            <i class="fas fa-eye" id="signupPasswordIcon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Confirm Password</label>
+                                    <input type="password" name="confirm_password" id="confirmPassword" class="form-control" placeholder="Re-enter your password" required autocomplete="new-password" minlength="6">
+                                </div>
+                                <button type="submit" class="btn btn-success w-100" id="signupBtn">
+                                    <i class="fas fa-user-plus"></i> Register
+                                </button>
+                            </form>
+                            <p class="text-center mt-3">
+                                <a href="#" id="showLoginLink">Already have an account? Login</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+ 
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toastNotification" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong class="me-auto">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/frontend/js/auth.js"></script>
+</body>
+</html>

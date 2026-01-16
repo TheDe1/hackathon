@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Attendance System</title>
+    <link rel="stylesheet" href="/frontend/assets//style.css">
+    <link rel="stylesheet" href="/frontend/assets/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-user-shield"></i> Admin Panel</h2>
+        </div>
+        <nav class="sidebar-menu">
+            <ul>
+                <li><a href="#dashboard" onclick="loadSection('dashboard')" class="active"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="#users" onclick="loadSection('users')"><i class="fas fa-users"></i> User Management</a></li>
+                <li><a href="#events" onclick="loadSection('events')"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="#attendance" onclick="loadSection('attendance')"><i class="fas fa-qrcode"></i> Scan Attendance</a></li>
+                <li><a href="#reports" onclick="loadSection('reports')"><i class="fas fa-chart-bar"></i> Reports</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div class="header-left">
+                <button class="toggle-sidebar"><i class="fas fa-bars"></i></button>
+                <h1>Admin Dashboard</h1>
+            </div>
+            <div class="header-right">
+                <div class="admin-info">
+                    <span id="adminName">Admin</span>
+                    <img src="assets/images/avatar.png" alt="Admin" class="admin-avatar" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2740%27 height=%2740%27%3E%3Crect fill=%27%23ddd%27 width=%2740%27 height=%2740%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 fill=%27%23999%27 font-size=%2716%27%3EA%3C/text%3E%3C/svg%3E'">
+                </div>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="section active">
+                <h2>Dashboard Overview</h2>
+    
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalStudents">0</h3>
+                            <p>Total Registered Students</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning"><i class="fas fa-user-clock"></i></div>
+                        <div class="stat-info">
+                            <h3 id="pendingStudents">0</h3>
+                            <p>Pending Verifications</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success"><i class="fas fa-user-check"></i></div>
+                        <div class="stat-info">
+                            <h3 id="verifiedStudents">0</h3>
+                            <p>Verified Students</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalEvents">0</h3>
+                            <p>Total Events</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalAttendance">0</h3>
+                            <p>Total Attendance Records</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-box">
+                        <h3>Event Attendance Trends</h3>
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <h3>Student Verification Status</h3>
+                        <canvas id="verificationChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="users-section" class="section">
+                <div class="section-header">
+                    <h2>User Management</h2>
+                    <button class="btn-primary" onclick="exportUsers()">
+                        <i class="fas fa-download"></i> Export Users
+                    </button>
+                </div>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="filterUsers('all')">All Users</button>
+                    <button class="tab-btn" onclick="filterUsers('pending')">Pending (<span id="pendingCount">0</span>)</button>
+                    <button class="tab-btn" onclick="filterUsers('verified')">Verified</button>
+                    <button class="tab-btn" onclick="filterUsers('admin')">Admins</button>
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" id="userSearch" placeholder="Search by name, email, or student ID..." onkeyup="searchUsers()">
+                    <button class="btn-secondary" onclick="clearUserSearch()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Profile</th>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Registered</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="8" class="no-data">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Events Section -->
+            <section id="events-section" class="section">
+                <div class="section-header">
+                    <h2>Event Management</h2>
+                    <button class="btn-primary" onclick="openModal('createEventModal')">
+                        <i class="fas fa-plus"></i> Create Event
+                    </button>
+                </div>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="filterEvents('all')">All Events</button>
+                    <button class="tab-btn" onclick="filterEvents('active')">Active</button>
+                    <button class="tab-btn" onclick="filterEvents('completed')">Completed</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Event Name</th>
+                                <th>Description</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Attendees</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventsTableBody">
+                            <tr><td colspan="7" class="no-data">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Attendance Section -->
+            <section id="attendance-section" class="section">
+                <h2>Scan Student Attendance</h2>
+                
+                <div class="scan-container">
+                    <div class="scan-header">
+                        <div class="form-group">
+                            <label>Select Event</label>
+                            <select id="eventSelect" class="form-control" onchange="selectEvent()">
+                                <option value="">-- Select an Event --</option>
+                            </select>
+                        </div>
+                        <div class="scan-stats" id="scanStats" style="display: none;">
+                            <div class="scan-stat">
+                                <span>Total Scanned:</span>
+                                <strong id="totalScanned">0</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="scanner-area" id="scannerArea" style="display: none;">
+                        <div class="camera-container">
+                            <video id="qrVideo" class="qr-video" autoplay playsinline></video>
+                            <canvas id="qrCanvas" hidden></canvas>
+                            <div class="scan-overlay">
+                                <div class="scan-frame"></div>
+                                <p class="scan-instruction">Position QR code within the frame</p>
+                            </div>
+                        </div>
+                        
+                        <div class="scan-result" id="scanResult"></div>
+                        
+                        <div class="scan-controls">
+                            <button class="btn-secondary" onclick="stopScanner()">
+                                <i class="fas fa-stop"></i> Stop Scanner
+                            </button>
+                            <button class="btn-primary" onclick="manualEntry()">
+                                <i class="fas fa-keyboard"></i> Manual Entry
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="event-attendance" id="eventAttendance" style="display: none;">
+                        <h3>Event Attendance List</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Profile</th>
+                                        <th>Student ID</th>
+                                        <th>Name</th>
+                                        <th>Scan Time</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="eventAttendanceBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports-section" class="section">
+                <h2>Attendance Reports</h2>
+                
+                <div class="report-controls">
+                    <select id="reportType" class="form-control">
+                        <option value="event">By Event</option>
+                        <option value="student">By Student</option>
+                        <option value="summary">Summary Report</option>
+                    </select>
+                    <input type="date" id="reportStartDate" class="form-control">
+                    <input type="date" id="reportEndDate" class="form-control">
+                    <button class="btn-primary" onclick="generateReport()">
+                        <i class="fas fa-chart-bar"></i> Generate Report
+                    </button>
+                    <button class="btn-secondary" onclick="exportReport()">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                </div>
+
+                <div class="report-display" id="reportDisplay">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead id="reportTableHead">
+                            </thead>
+                            <tbody id="reportTableBody">
+                                <tr>
+                                    <td colspan="6" class="no-data">Select report parameters and click Generate Report</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Create Event Modal -->
+    <div id="createEventModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createEventModal')">&times;</span>
+            <h2>Create New Event</h2>
+            <form id="createEventForm" onsubmit="createEvent(event)">
+                <div class="form-group">
+                    <label>Event Name*</label>
+                    <input type="text" id="eventName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Description*</label>
+                    <textarea id="eventDescription" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Date*</label>
+                    <input type="date" id="eventDate" class="form-control" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Time*</label>
+                        <input type="time" id="eventStartTime" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>End Time*</label>
+                        <input type="time" id="eventEndTime" class="form-control" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-plus"></i> Create Event
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Verify Student Modal -->
+    <div id="verifyStudentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('verifyStudentModal')">&times;</span>
+            <h2>Verify Student</h2>
+            <div id="verifyStudentContent"></div>
+        </div>
+    </div>
+
+    <!-- Manual Entry Modal -->
+    <div id="manualEntryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('manualEntryModal')">&times;</span>
+            <h2>Manual Attendance Entry</h2>
+            <form onsubmit="submitManualEntry(event)">
+                <div class="form-group">
+                    <label>Student ID*</label>
+                    <input type="text" id="manualStudentId" class="form-control" required>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-check"></i> Mark Attendance
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script src="/frontend/js/admin.js"></script>
+</body>
+</html>
